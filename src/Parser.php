@@ -164,25 +164,28 @@ class Parser
         $result = $this->command->run();
         $log = $result->getStdOut();
 
-        $buffer = array();
-        $commits = explode($this->format->getCommitDelimiter(), $log);
+        $commits = array();
+        $raw_commits = explode("\0END\0", $log);
 
-        foreach ($commits as $commit) {
-            $fields = explode($this->format->getFieldDelimiter(), $commit);
-            $entry = array();
+        foreach ($raw_commits as $raw_commit) {
+            if (!$raw_commit) {
+                continue;
+            }
+            $fields = explode("\0", $raw_commit);
+            $commit = array();
 
             foreach ($fields as $field) {
-                if (!preg_match('/^\[(\S*?)\](.*)/', $field, $matches)) {
-                    continue;
+                $pieces = explode("=", $field, 2);
+                if (count($pieces) === 2) {
+                    $commit[$pieces[0]] = $pieces[1];
                 }
-                $entry[trim($matches[1])] = trim($matches[2]);
             }
-            if (!empty($entry)) {
-                $buffer[] = $entry;
+            if (!empty($commit)) {
+                $commits[] = $commit;
             }
-
         }
-        return $buffer;
+
+        return $commits;
     }
 
     private function buildCommand()

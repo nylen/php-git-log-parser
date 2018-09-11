@@ -14,6 +14,7 @@ class RealTest extends \PHPUnit_Framework_TestCase
         $dir = realpath(__DIR__ . '/../');
         $parser->setGitDir($dir);
         $logArray = $parser->parse();
+        print_r($logArray);
         self::assertNotEmpty($logArray);
     }
 }
