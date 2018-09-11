@@ -8,24 +8,6 @@ use Tivie\Command\Argument;
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers \Tivie\GitLogParser\Parser::parse
-     */
-    public function testParse()
-    {
-        $gitlog = file_get_contents(__DIR__ . '/resources/gitlog.txt');
-        $gitlogJson = file_get_contents(__DIR__ . '/resources/gitlog.json');
-
-        $cmd = $this->createCommandMock($gitlog);
-        $format = $this->createFormatMock();
-        $parser = new Parser($format, $cmd);
-
-        $res = $parser->parse();
-        $json = json_decode($gitlogJson, true);
-        self::assertEquals($json, $res);
-
-    }
-
-    /**
      * @covers \Tivie\GitLogParser\Parser::setGitDir
      */
     public function testSetGitDir()

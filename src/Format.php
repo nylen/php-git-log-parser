@@ -31,10 +31,6 @@ class Format
 {
     private $format;
 
-    private $commitDelimiter;
-
-    private $fieldDelimiter;
-
     private static $phArray = array(
         "commitHash"                => '%H',
         "abbreviatedCommitHash"     => '%h',
@@ -83,69 +79,23 @@ class Format
     /**
      * Create a new Format object
      */
-    public function __construct()
+    public function __construct($fields = null)
     {
-        $this->fieldDelimiter = "%|%";
-        $s = "%".$this->fieldDelimiter."%";
-        $this->commitDelimiter = '%BREAK%';
-        $br = "%".$this->commitDelimiter."%";
+        if (empty($fields)) {
+            $fields = array_keys(self::$phArray);
+        }
 
         $format = '';
-        foreach (self::$phArray as $name => $field) {
-            $format .= "[$name]$field$s";
+        foreach ($fields as $name) {
+            if (isset(self::$phArray[$name])) {
+                $field = self::$phArray[$name];
+                $format .= "%x00$name=$field";
+            }
         }
-        $format = trim($format, $s);
-        $format .= $br;
+
+        $format .= '%x00END%x00';
 
         $this->format = $format;
-    }
-
-    /**
-     * Get the commit delimiter
-     *
-     * @return string
-     */
-    public function getCommitDelimiter()
-    {
-        return $this->commitDelimiter;
-    }
-
-    /**
-     * Get the field delimiter
-     *
-     * @return string
-     */
-    public function getFieldDelimiter()
-    {
-        return $this->fieldDelimiter;
-    }
-
-    /**
-     * Set the format that should be used by git log command
-     *
-     * @param string $format A string that follows the git log format specification.
-     * @param string $commitDelimiter The commit delimiter used by this format
-     * @param string $fieldDelimiter The field delimiter used by this format
-     * @return $this
-     * @throws InvalidArgumentException
-     * @see http://git-scm.com/docs/git-log#_pretty_formats
-     */
-    public function setFormat($format, $commitDelimiter, $fieldDelimiter)
-    {
-        if (!is_string($format)) {
-            throw new InvalidArgumentException('string', 0);
-        }
-        if (!is_string($commitDelimiter)) {
-            throw new InvalidArgumentException('string', 1);
-        }
-        if (!is_string($fieldDelimiter)) {
-            throw new InvalidArgumentException('string', 2);
-        }
-        $this->commitDelimiter = $commitDelimiter;
-        $this->fieldDelimiter = $fieldDelimiter;
-        $this->format = $format;
-
-        return $this;
     }
 
     /**
